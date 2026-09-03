@@ -1,24 +1,31 @@
 # uniqed — working rules for Claude Code
 
-## Current sprint: Sprint 1 (Epic A0 only)
+## Current sprint: Sprint 1, story A1 (automatic embedding)
 
-Goal: same algorithm, same outputs, modern packaging. Release 0.0.3.
+A0 closed 2026-09-03 with 0.0.3 on PyPI; see `docs/log.md`.
+
+Goal: the tool picks the embedding itself, so the user never tunes it. Behaviour
+changes ship as 0.1.0, not as a 0.0.x release.
 
 ## Do
 
-- Make `pip install -e .` work on Python 3.12 with current numpy, scipy, pandas.
-- Fix only what breaks. Prefer the smallest change.
-- Add regression tests: the four simulated datasets from the paper, ROC AUC within 0.02 of Table 1
-  (logmap-tent 0.939, logmap-linear 0.994, sim-ECG-tachy 0.931, randwalk-linear 0.988).
-- Add a GitHub Actions workflow: test on push; publish to PyPI via Trusted Publishing on tag.
-- Keep the README example running unchanged.
+- Delay τ from the first zero crossing of the autocorrelation, or the first minimum if it never reaches zero.
+- Dimension E from intrinsic-dimension saturation on deterministic data; differential-entropy method
+  (Gautama 2003) as fallback for stochastic data, since the dimension method failed on LIBOR (Fig. S11–S12).
+- Choose window length E·τ first, then split (Fig. S5 hyperbola).
+- Implement the Ryzhii ECG generator from SI Eq. 14–25 and un-skip the sim-ECG-tachy regression row (0.931).
+- Fix issue #1 (half-sample truncation when (E−1)·τ is odd) here.
+- Definition of done: on Lorenz and Rössler the picked values match the known ones; on the paper's ECG
+  simulation F1 ≥ 0.90 (hand-tuned 0.83, optimum 0.94); LIBOR routes to the entropy method automatically.
+- Keep the A0 regression tests passing with explicit E=3, τ=1. Keep the README example running.
 
 ## Do not
 
-- Do not change any function that computes the TOF score, the embedding, or the kNN search.
-- Do not rename the package, modules, or public functions.
-- Do not add new features, parameters, or defaults. Those are Sprint 1 stories A1–A3, later.
-- Do not delete or re-upload existing PyPI releases 0.0.0–0.0.2.
+- Do not change the TOF score computation or the kNN search.
+- Do not rename the package, modules, or public functions. Existing calls with explicit
+  `embedding_dimension` and `embedding_delay` must keep working and give the same output.
+- Do not start A2 (defaults for k, longest event, minimum visits, padding) or A3 (applicability check) here.
+- Do not delete or re-upload existing PyPI releases 0.0.0–0.0.3.
 
 ## Before every commit
 
