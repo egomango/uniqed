@@ -240,3 +240,6 @@ dmypy.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 
+
+# Local copies of the paper and its SI; cite the DOI instead
+docs/paper/
