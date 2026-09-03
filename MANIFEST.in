@@ -1,9 +1,14 @@
 include setup.py
 include MANIFEST.in
 include LICENSE.txt
-include README.md
+include README.rst
+include CHANGELOG.md
 
 graft tests
 graft examples
 graft docs
 graft src
+
+prune examples/data/simulations
+prune docs/paper
+global-exclude __pycache__ *.py[cod] .DS_Store
