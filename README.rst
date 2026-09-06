@@ -40,8 +40,10 @@ This is a simple example:
     # Generate some data
     data_df = generate_logmapdata(rseed=359)
     
-    # Detect outliers
+    # Detect outliers. The embedding (dimension and delay) is chosen from the data;
+    # res_df.attrs["embedding"] says what was chosen and by which rule.
     res_df = detect_outlier(data_df[['value']], cutoff_n=80)
+    print(res_df.attrs["embedding"]["dimension"], res_df.attrs["embedding"]["delay"])
     
     
     # plot the results
@@ -78,6 +80,30 @@ This is a simple example:
 
 
 .. image:: https://raw.githubusercontent.com/phrenico/uniqed/master/examples/example_run.png
+
+Choosing the embedding
+----------------------
+Since 0.1.0 the embedding is chosen from the data when you do not give it: the delay
+from the first zero crossing of the autocorrelation, the dimension from where the
+intrinsic-dimension estimate stops tracking the embedding dimension (never below 3),
+and, for signals with no such plateau, Gautama's entropy-ratio criterion. This is the
+procedure the paper's supplement describes for its real datasets. You can still set
+either value yourself; explicit values give the same output as earlier releases:
+
+.. code-block:: python
+
+    from uniqed.embedding import choose_embedding
+
+    choice = choose_embedding(data_df['value'].values)
+    print(choice)   # dimension, delay, method, delay_rule, dimension_profile, window, ...
+
+    res_df = detect_outlier(data_df[['value']], cutoff_n=80,
+                            embedding_dimension=3, embedding_delay=1)
+
+The chooser needs about 500 samples beyond the embedding window and a series that holds
+more than one cycle of its slowest rhythm. On shorter series, on series with too few
+cycles, and on series whose values repeat exactly (an exactly periodic sampled signal),
+``choose_embedding`` raises and tells you to pass the embedding explicitly.
 
 
 References
