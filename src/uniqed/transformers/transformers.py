@@ -79,11 +79,11 @@ class TransformYTrue(BaseEstimator, TransformerMixin):
         :return: numpy.array with new shifted time-axis
         """
 
-        # factor for the adjustment of time indicis after embedding
-        dimension_time_shift = ((d - 1) / 2.0) * tau
-        time_x = (
-            np.arange(dimension_time_shift, self.length_ + dimension_time_shift)
-        ).astype(int)
+        # Centre of the embedding window. When (d - 1) * tau is odd there is no
+        # integer centre; round toward the past so the score is never stamped before
+        # the last sample it used (issue #1). Live lag is therefore ceil(window / 2).
+        dimension_time_shift = int(np.ceil((d - 1) * tau / 2.0))
+        time_x = np.arange(dimension_time_shift, self.length_ + dimension_time_shift)
         return time_x
 
 

@@ -79,3 +79,18 @@ class TestTransformYTrue(TestCase):
         prefix = ""
 
         _make_result_df(x, x, x, inv_it, prefix)
+
+
+def test_odd_window_is_stamped_at_ceil_of_half_window():
+    # d=2, tau=1: window 1, centre 0.5. Issue #1: was truncated to 0; now rounds to 1,
+    # so the score is stamped no earlier than the last sample it needed.
+    from uniqed.transformers.transformers import TransformYTrue
+
+    x = np.arange(10)
+    axis = TransformYTrue(d=2, tau=1).fit(x)._get_faketime_axis(2, 1)
+    assert axis[0] == 1
+    assert axis[-1] == 9
+    axis = TransformYTrue(d=4, tau=1).fit(x)._get_faketime_axis(4, 1)  # window 3, centre 1.5 -> 2
+    assert axis[0] == 2
+    axis = TransformYTrue(d=3, tau=1).fit(x)._get_faketime_axis(3, 1)  # even window unchanged
+    assert axis[0] == 1
