@@ -20,8 +20,9 @@ when run through this same pipeline:
   first one produced by the anomalous update rule;
 * the random walk is analysed after log-differencing, as in the paper.
 
-The simulated-ECG dataset (Table 1 row "sim ECG-tachy", AUC 0.931) is skipped:
-the Ryzhii & Ryzhii ECG model has no generator in this repository.
+The simulated-ECG row (Table 1 "sim ECG-tachy", AUC 0.931) is tested on the
+authors' published files in test_regression_published.py; there is no
+generator here, by decision of 2026-09-06.
 """
 
 import numpy as np
@@ -155,9 +156,3 @@ def test_roc_auc_matches_table_1(name):
         f"Table 1 reports {expected_auc:.3f} (tolerance {TOLERANCE})"
     )
 
-
-def test_sim_ecg_tachy_not_reproducible_here():
-    pytest.skip(
-        "sim-ECG-tachy (Table 1 AUC 0.931) needs the Ryzhii & Ryzhii ECG "
-        "generator, which does not exist in this repository"
-    )
