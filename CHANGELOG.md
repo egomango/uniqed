@@ -4,7 +4,7 @@
 
 The package chooses the embedding itself (story A1). First behaviour change since 0.0.2.
 
-- New `uniqed.embedding`: `choose_embedding(x)` returns the dimension, the delay, which rule chose them and the diagnostics. Delay from the first zero crossing of the autocorrelation (first minimum if it never crosses); dimension from where the intrinsic-dimension estimate (median FSA) stops tracking the embedding dimension, with a floor of 3; the entropy-ratio criterion of Gautama, Mandic and Van Hulle (2003) as the fallback for signals with no plateau.
+- New `uniqed.embedding`: `choose_embedding(x)` returns the dimension, the delay, which rule chose them and the diagnostics. Delay from the first turning point of the autocorrelation, its zero crossing or its first minimum, whichever comes first (the paper's two examples did one each); dimension from where the intrinsic-dimension estimate (median FSA) stops tracking the embedding dimension, with a floor of 3; the entropy-ratio criterion of Gautama, Mandic and Van Hulle (2003) as the fallback for signals with no plateau.
 - `detect_outlier` defaults `embedding_dimension` and `embedding_delay` to `None`, meaning "choose". Either may still be given. The result carries `result.attrs["embedding"]`.
 - Explicit `embedding_dimension=3, embedding_delay=1` gives output identical to 0.0.3, checked frame for frame.
 - Quantised input (meters, rates quoted to two decimals) is dithered by half its resolution before the estimators run, and the choice records it.

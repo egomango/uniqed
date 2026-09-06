@@ -66,8 +66,9 @@ script behind the picture is ``examples/example_tof_run.py``.
 .. image:: https://raw.githubusercontent.com/egomango/uniqed/master/examples/example_run.png
 
 Since 0.1.0 the time-delay embedding is chosen from the data when you do not give it,
-by the procedure the paper's supplement describes: the delay from the first zero
-crossing of the autocorrelation, the dimension from where the intrinsic-dimension
+by the procedure the paper's supplement describes: the delay from the first turning
+point of the autocorrelation (zero crossing or minimum, whichever comes first), the
+dimension from where the intrinsic-dimension
 estimate stops tracking the embedding dimension (never below 3), and Gautama's
 entropy-ratio criterion for signals with no such plateau. You can still set either
 value yourself, and explicit values give the same output as earlier releases:

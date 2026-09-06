@@ -23,10 +23,17 @@ def autocorrelation(x, max_lag):
 
 
 def choose_delay(x, max_lag=None):
-    """Embedding delay from the autocorrelation function (paper SI, Figs. S9-S10).
+    """Embedding delay from the first turning point of the autocorrelation.
 
-    The delay is the first lag where the autocorrelation reaches zero; if it never
-    does within ``max_lag``, the first local minimum; if there is none, 1.
+    The paper's supplement selects the delay at the first zero crossing of the
+    autocorrelation (Fig. S9, polysomnography, lag 5) or at its first local minimum
+    (Fig. S10, gravitational wave, lag 8, where the zero crossing sat at 16-17). The
+    rule here is the earlier of the two, which is what both examples did. When
+    neither exists within ``max_lag`` the delay is 1 and the rule is "none".
+
+    On Lorenz the zero crossing alone lands at 200-400 samples, several oscillations,
+    and the reconstruction at that delay is poor; the first minimum at 50-70 gives
+    the expected dimension (measured 2026-09-06).
 
     :param numpy.ndarray x: 1D series
     :param int max_lag: search range (default: a quarter of the series)
@@ -41,6 +48,7 @@ def choose_delay(x, max_lag=None):
     max_lag = min(max_lag, len(x) - 2)
     acf = autocorrelation(x, max_lag)
 
+    candidates = []
     nonpositive = np.flatnonzero(acf[1:] <= 0)
     if len(nonpositive):
         # Linear interpolation between the last positive lag and the first
@@ -48,11 +56,14 @@ def choose_delay(x, max_lag=None):
         after = int(nonpositive[0] + 1)
         before = after - 1
         crossing = before + acf[before] / (acf[before] - acf[after])
-        return max(1, int(round(crossing))), "zero-crossing"
+        candidates.append((max(1, int(round(crossing))), "zero-crossing"))
 
     interior = acf[1:-1]
     minima = np.flatnonzero((interior < acf[:-2]) & (interior <= acf[2:]))
     if len(minima):
-        return int(minima[0] + 1), "first-minimum"
+        candidates.append((int(minima[0] + 1), "first-minimum"))
 
-    return 1, "none"
+    if not candidates:
+        return 1, "none"
+    # Earlier lag wins; on a tie the zero crossing, the paper's primary rule.
+    return min(candidates, key=lambda c: (c[0], c[1] != "zero-crossing"))

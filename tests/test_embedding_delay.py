@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+from tests.systems import lorenz, rossler
 from uniqed.embedding.delay import autocorrelation, choose_delay
 
 
@@ -46,3 +47,14 @@ def test_choose_delay_rejects_short_or_constant_input():
         choose_delay(np.ones(100))
     with pytest.raises(ValueError):
         choose_delay(np.arange(3.0))
+
+
+def test_choose_delay_takes_the_earlier_turning_point():
+    # Lorenz: the zero crossing sits at 200-400 samples, the first minimum at 50-80.
+    for seed in range(4):
+        tau, rule = choose_delay(lorenz(10000, seed=seed))
+        assert rule == "first-minimum", seed
+        assert 50 <= tau <= 80, (seed, tau)
+    # Rossler: the zero crossing (29) comes before the first minimum (58).
+    tau, rule = choose_delay(rossler(10000))
+    assert (tau, rule) == (29, "zero-crossing")

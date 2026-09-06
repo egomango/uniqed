@@ -23,8 +23,9 @@ example unchanged.
 ## A1 — the tool picks the embedding (0.1.0, 2026-09-06)
 
 Goal: no hand-set embedding. We implemented the three-step procedure the paper's
-supplement describes for its real datasets (Figs. S9–S12): delay from the first zero
-crossing of the autocorrelation, dimension from where the median-FSA intrinsic-dimension
+supplement describes for its real datasets (Figs. S9–S12): delay from the first turning
+point of the autocorrelation (zero crossing or first minimum, whichever comes first, as
+the paper's two examples did), dimension from where the median-FSA intrinsic-dimension
 estimate stops tracking the embedding dimension, and Gautama's entropy ratio when there
 is no plateau. On Lorenz and Rössler it picks E=3; on the differenced TEDRATE series
 (the stand-in for LIBOR) it finds no plateau and routes to the entropy method, as the
@@ -45,4 +46,10 @@ at the top of the grid (1 of 25 seeds at 300 rows, none from 400 up), so the cho
 requires 500 rows, caps the delay search to what the series can support, and on series
 too short or with too few cycles raises with advice rather than guess. Also fixed:
 issue #1, odd embedding windows now round toward the past. Explicit E=3, τ=1 gives
-output identical to 0.0.3, checked frame for frame.
+output identical to 0.0.3, checked frame for frame. Found by CI after the tag: the
+first cut took the zero crossing whenever one existed, which on Lorenz lands at 200–400
+samples, several oscillations, where the reconstruction is poor and the rule returned
+E=4; the first minimum at 50–70 gives E=3 on every seed. The test data had also been
+integrated with an adaptive solver, and chaos turned the last-bit differences between
+macOS and Linux into different trajectories; the tests now use fixed-step RK4 in plain
+arithmetic, bit-identical across platforms.
