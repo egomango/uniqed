@@ -243,3 +243,11 @@ dmypy.json
 
 # Local copies of the paper and its SI; cite the DOI instead
 docs/paper/
+
+# Private material lives in ~/io/uniqed-report and must never land here
+PLAN.md
+sales/
+notes/
+outreach/
+reports/
+roadmap/
