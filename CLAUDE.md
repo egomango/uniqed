@@ -16,7 +16,12 @@ changes ship as 0.1.0, not as a 0.0.x release.
 - Implement the Ryzhii ECG generator from SI Eq. 14–25 and un-skip the sim-ECG-tachy regression row (0.931).
 - Fix issue #1 (half-sample truncation when (E−1)·τ is odd) here.
 - Definition of done: on Lorenz and Rössler the picked values match the known ones; on the paper's ECG
-  simulation F1 ≥ 0.90 (hand-tuned 0.83, optimum 0.94); LIBOR routes to the entropy method automatically.
+  simulation F1 ≥ 0.90 (hand-tuned 0.83, optimum 0.94); TEDRATE routes to the entropy method automatically.
+- TEDRATE stands in for LIBOR. USD LIBOR was removed from FRED on 2022-01-31 and has no free source; the
+  repo holds no copy. TEDRATE (FRED series `TEDRATE`, 3-month LIBOR minus 3-month T-bill, daily,
+  1986-01-02 to 2022-01-21, 9,407 observations, no gaps) is the stochastic test series instead. Fetch it
+  from `https://fred.stlouisfed.org/graph/fredgraph.csv?id=TEDRATE` at test time, do not vendor it, skip
+  the test when offline. The paper's Fig. S11–S12 LIBOR result is cited, not reproduced.
 - Keep the A0 regression tests passing with explicit E=3, τ=1. Keep the README example running.
 
 ## Do not
@@ -26,6 +31,7 @@ changes ship as 0.1.0, not as a 0.0.x release.
   `embedding_dimension` and `embedding_delay` must keep working and give the same output.
 - Do not start A2 (defaults for k, longest event, minimum visits, padding) or A3 (applicability check) here.
 - Do not delete or re-upload existing PyPI releases 0.0.0–0.0.3.
+- Do not add report, context-join, or hypothesis code to this repo. Epics E and F live in a separate private repo. See the plan there, "Three tracks".
 
 ## Before every commit
 
@@ -34,7 +40,7 @@ changes ship as 0.1.0, not as a 0.0.x release.
 
 ## Reference
 
-- Plan: PLAN.md in this repo.
+- Plan: `~/io/uniqed-report/PLAN.md`, private and local-only, moved out of this repo 2026-09-06. Nothing about pricing, outreach, or customers belongs in this public repo.
 - Paper: Benkő, Bábel, Somogyvári, Sci. Rep. 12:227 (2022), doi 10.1038/s41598-021-03526-y.
 
 ## Publishing workflow (fixed, must match PyPI Trusted Publisher)
