@@ -1,3 +1,5 @@
+@WHY.md
+
 # uniqed — working rules for Claude Code
 
 ## Current sprint: Sprint 1, story A2 (defaults for k, longest event, minimum visits, padding)
