@@ -5,7 +5,7 @@
 ## Current sprint: Sprint 1, story A2 (defaults for k, longest event, minimum visits, padding)
 
 A0 closed 2026-09-03 with 0.0.3; A1 closed 2026-09-06 with 0.1.0. See `docs/log.md`.
-The plan for A2 is in `~/io/sci/uniqed-report/PLAN.md`; write the story's rules here before starting it.
+The plan for A2 is in `~/io/sci/uniqed-report/tracks/package/PLAN.md`; write the story's rules here before starting it.
 
 ## Do
 
@@ -28,7 +28,7 @@ The plan for A2 is in `~/io/sci/uniqed-report/PLAN.md`; write the story's rules 
 
 ## Reference
 
-- Plan: `~/io/sci/uniqed-report/PLAN.md`, private and local-only, moved out of this repo 2026-09-06. Nothing about pricing, outreach, or customers belongs in this public repo.
+- Plan: `~/io/sci/uniqed-report/tracks/package/PLAN.md`, private and local-only, moved out of this repo 2026-09-06. Nothing about pricing, outreach, or customers belongs in this public repo.
 - Paper: Benkő, Bábel, Somogyvári, Sci. Rep. 12:227 (2022), doi 10.1038/s41598-021-03526-y.
 
 ## Publishing workflow (fixed, must match PyPI Trusted Publisher)
