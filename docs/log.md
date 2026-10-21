@@ -53,3 +53,19 @@ E=4; the first minimum at 50–70 gives E=3 on every seed. The test data had als
 integrated with an adaptive solver, and chaos turned the last-bit differences between
 macOS and Linux into different trajectories; the tests now use fixed-step RK4 in plain
 arithmetic, bit-identical across platforms.
+
+## A-bug — a point is never its own neighbour (0.1.1, 2026-10-21)
+
+Found while running TOF on a sparse event-count series, where most embedded points are
+identical idle states. The neighbour search asked for k + 1 results and dropped the
+first, on the assumption that it was the point itself. With exact twins the search
+returns them in arbitrary order: the point came first in only 3.8% of rows, which was
+harmless when the dropped result was another twin, but in 4.6% of rows the point stayed
+among its own k neighbours at time distance 0, which pulls its score toward "not
+unique". The fix drops the point by its index, or the last result when more than k
+twins push it out. Tested first: a property test (no row lists itself, k distinct
+neighbours, twins at distance 0) failed in 13 of 13 settings before the fix. On all 400
+published simulation files the scores at E=3, τ=1, k = 2 and 4 are identical to 0.1.0,
+since without twins the point is the only result at distance 0. What the fix does not
+do: which twins become neighbours still follows the search's tie order, so on data with
+many identical values the flags can depend on that order. Dithering removes the twins.

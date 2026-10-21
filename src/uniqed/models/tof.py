@@ -79,7 +79,18 @@ class TOF(BaseEstimator, ClassifierMixin, OutlierMixin):
             k = self.d_ + 1
         tree = cKDTree(self.X_)
         distances, indicis = tree.query(X, k + 1)
-        return distances[:, 1:], indicis[:, 1:]
+        if X is not self.X_:
+            return distances[:, 1:], indicis[:, 1:]
+
+        # with exact twins the point itself need not come first: drop it by index,
+        # or drop the last result when more than k twins pushed it out
+        is_self = indicis == np.arange(X.shape[0]).reshape([-1, 1])
+        is_self[~is_self.any(axis=1), -1] = True
+        keep = ~is_self
+        return (
+            distances[keep].reshape([X.shape[0], k]),
+            indicis[keep].reshape([X.shape[0], k]),
+        )
 
     def _compute_cutoff(self, cutoff_n):
         """Computes cutoff threshold for the outlier-score

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1 — 2026-10-21
+
+A point never counts as its own neighbour (story A-bug). Changes output only on data with exact twin points after embedding.
+
+- The neighbour search asked for k + 1 results and dropped the first, assuming it was the point itself. With exact twins the search may return a twin first, and the point could stay among its own k neighbours at time distance 0. On a sparse count series with many identical idle points this happened in 4.6% of rows. The point is now dropped by its index; when more than k twins push it out of the results, the last result is dropped.
+- Applies when scoring the fitted data (`fit`, and `predict` on the same array). `predict` on other data keeps the old behaviour.
+- Output on data without exact twins is identical to 0.1.0: checked on all 400 published simulation files at E=3, τ=1, k = 2 and 4.
+- Which twins become neighbours still depends on the search's tie order. Data with many identical values should be dithered before scoring.
+
 ## 0.1.0 — 2026-09-06
 
 The package chooses the embedding itself (story A1). First behaviour change since 0.0.2.
