@@ -71,3 +71,25 @@ do: which twins become neighbours still follows the search's tie order, so on da
 many identical values the flags can depend on that order. Dithering removes the twins,
 but one noise seed only replaces the tie order with the noise's: score several seeds
 and report how often each flag appears (corrected 2026-10-21).
+
+## A-ties — tied points all count as neighbours (0.1.2, 2026-10-21)
+
+0.1.1 still kept exactly k neighbours, so among points tied at the k-th distance the
+search's order chose which counted. We measured how much that matters by shuffling the
+order of tied points under 20 seeds, on eight PreDist district-heating series (Zenodo
+17522255, CC BY 4.0; 2% to 97% of embedded points with an exact twin) and on a sparse
+event-count series. With few ties the flags barely move. With many they do, and the
+default order is biased: tied points come back in time order, look close in time, and
+get flagged. On the count series the default run flagged 23 points, 19 of them idle;
+shuffled runs flagged 2 to 11 and no idle point. Dithering removed the idle flags, but
+its flags moved with the noise seed, and noise as large as the rounding step also
+blurred neighbouring distinct values. The fix takes every point at the k-th distance or
+closer, as LOF's k-distance neighbourhood does. It gives one answer with no seed: on all
+nine series 99.7% to 100% of its flags lie near a flag of the 20-seed majority of
+dithering at a tenth of the rounding step; on the count series it flags 2 points, none
+idle. Checked against a brute-force computation on tied data (q = 1, 2, 3; mean and
+median); identical to 0.1.1 on all 400 published simulation files at E=3, τ=1, k = 2
+and 4, where no point has a tie at its k-th distance. What it does not fix: on slow,
+smooth series TOF still flags long stretches, likely because consecutive points are
+each other's nearest neighbours (not yet tested); that is a threshold question, not a
+tie question.

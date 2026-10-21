@@ -2,10 +2,11 @@
 
 # uniqed — working rules for Claude Code
 
-## Current sprint: Sprint 1, story A2 (defaults for k, longest event, minimum visits, padding)
+## Current story: A-ties (tie-inclusive neighbours, 0.1.2); next: Sprint 1, story A2 (defaults for k, longest event, minimum visits, padding)
 
 A0 closed 2026-09-03 with 0.0.3; A1 closed 2026-09-06 with 0.1.0; A-bug (self-index) closed 2026-10-21
-with 0.1.1. See `docs/log.md`.
+with 0.1.1. See `docs/log.md`. A-ties was allowed by the owner 2026-10-21 (plan:
+`~/io/sci/uniqed-report/tracks/package/plans/2026-10-21-a-ties-tie-inclusive.md`).
 The plan for A2 is in `~/io/sci/uniqed-report/tracks/package/PLAN.md`; write the story's rules here before starting it.
 
 ## Do
@@ -16,11 +17,14 @@ The plan for A2 is in `~/io/sci/uniqed-report/tracks/package/PLAN.md`; write the
 
 ## Do not
 
-- Do not change the TOF score formula or the kNN search. Exception (A-bug, 2026-10-21): which search
-  results are kept, so that a point is never its own neighbour.
+- Do not change the TOF score formula or the kNN search. Exceptions: (A-bug, 2026-10-21) which search
+  results are kept, so that a point is never its own neighbour; (A-ties, 2026-10-21) on the fitted data
+  the neighbours are every point at the k-th nearest distance or closer, ties included.
 - Do not rename the package, modules, or public functions. Existing calls with explicit
   `embedding_dimension` and `embedding_delay` must keep working and give the same output on data
-  without exact twin embedded points. On data with twins, output changes from 0.1.1 (A-bug).
+  without exact twin embedded points. On data with twins, output changes from 0.1.1 (A-bug). From 0.1.2 (A-ties) output stays identical
+  wherever no embedded row has a tie at its k-th neighbour distance (for whole-number q; fractional q
+  can differ in the last bit).
 - Do not delete or re-upload existing PyPI releases 0.0.0–0.1.0.
 - Do not add report, context-join, or hypothesis code to this repo. Epics E and F live in a separate private repo. See the plan there, "Three tracks".
 

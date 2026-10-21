@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.2 — 2026-10-21
+
+On the fitted data, a point's neighbours are every point at the k-th nearest distance or closer, ties included (story A-ties). Scores no longer depend on the order in which the search returns tied points. Changes output only where an embedded point has a tie at its k-th neighbour distance.
+
+- Up to 0.1.1 exactly k neighbours were kept, and among points tied at the k-th distance the search's order chose which counted. On data with many identical values (meters that round, event counts) that order decided which points were flagged: tied points came back in time order, looked close in time, and were flagged. The neighbourhood now includes every tied point (the k-distance neighbourhood of LOF, Breunig et al. 2000), so one run gives one answer.
+- The threshold keeps its meaning: every point of a unique event up to `cutoff_n` samples long is still flagged. A stretch of identical values longer than that is flagged only in part or not at all, because its neighbours spread over the whole stretch.
+- Values are not rounded. Identical points are found by exact equality. Distances count as tied when they agree within a relative 1e-12: on a decimal grid, equal steps such as 70.2 − 70.1 and 70.3 − 70.2 differ in the last bits of floating point, and would otherwise not tie.
+- New attribute `neighbourhood_size_`: the number of neighbours per point, larger than k where ties enlarged it.
+- Output elsewhere is identical to 0.1.1 for whole-number q (the default is 2): checked on all 400 published simulation files at E=3, τ=1, k = 2 and 4. For fractional q the neighbours are the same but summed in a different order, so scores can differ in the last bit.
+- Fitting fewer than k + 1 points now raises `ValueError`; before it returned scores computed from a missing neighbour.
+- With q other than 2 or a centrality other than the mean, a large group of identical points is scored pair by pair: memory stays bounded, but time grows with the group size squared.
+- Applies when scoring the fitted data (`fit`, and `predict` on the same array). `predict` on other data keeps the k nearest.
+- Dithering is no longer needed to remove the tie order. It remains a choice about how far to trust the last digit of the data: noise as large as the rounding step also blurs neighbouring distinct values.
+
 ## 0.1.1 — 2026-10-21
 
 A point never counts as its own neighbour (story A-bug). Changes output only on data with exact twin points after embedding.

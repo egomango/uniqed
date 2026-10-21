@@ -5,6 +5,17 @@ from abc import ABCMeta, abstractmethod
 from sklearn.base import BaseEstimator, ClassifierMixin, OutlierMixin
 from scipy.spatial import cKDTree
 
+# Distances within this relative slack of the k-th distance count as tied. Values on a decimal grid
+# do not subtract exactly in floating point (70.2 - 70.1 and 70.3 - 70.2 differ by about 1e-14), so
+# without it, equal steps in the data would not tie. Values themselves are compared exactly.
+TIE_SLACK = 1e-12
+# Rows per radius query, so memory stays bounded when neighbourhoods are large.
+CHUNK = 1000
+# Time distances held at once per twin-group block, so memory stays bounded for any group size.
+BLOCK_ELEMENTS = 1_000_000
+# Exact int64 sums of squared time distances hold below this many rows (n**3 / 3 < 2**63).
+MAX_ROWS_EXACT = 2_000_000
+
 
 class TOF(BaseEstimator, ClassifierMixin, OutlierMixin):
     def __init__(self, cutoff_n=1.0, k=None, q=2, centrality_func=np.mean):
@@ -130,10 +141,16 @@ class TOF(BaseEstimator, ClassifierMixin, OutlierMixin):
     def _compute_outlier_score(self, X, k=None):
         """Computes 1/TOF for X
 
+        On the fitted data the neighbours are every point at the k-th nearest distance or closer,
+        ties included; on new data, the k nearest.
+
         :param numpy.ndarray X: dataset
         :param int k: number of neighbors
         :return: 1/TOF outlier score
         """
+        if X is self.X_:
+            return 1.0 / self._tie_inclusive_tof(X, self.d_ + 1 if k is None else k)
+
         embedded_length = X.shape[0]
 
         # get point indicis, find k-nn and compute
@@ -143,6 +160,80 @@ class TOF(BaseEstimator, ClassifierMixin, OutlierMixin):
         outlier_score_ = 1.0 / self._compute_tof(nearest_indicis, indicis)
 
         return outlier_score_
+
+    def _tie_inclusive_tof(self, X, k):
+        """TOF over every point at the k-th nearest distance or closer, ties included
+
+        A point is never its own neighbour. Points with no tie at their k-th distance get exactly
+        the k neighbours of 0.1.1. Sets ``neighbourhood_size_``.
+
+        :param numpy.ndarray X: the fitted data
+        :param int k: number of neighbors
+        :return: TOF score
+        """
+        X = np.asarray(X)
+        n = X.shape[0]
+        if n <= k:
+            raise ValueError(f"TOF needs more than k = {k} embedded points, got {n}")
+        tree = cKDTree(X)
+        # the point itself is among the results at distance 0, so column k is the k-th other point
+        distances, indicis = tree.query(X, k + 2)
+        kdist = distances[:, k]
+        tof = np.empty(n)
+        size = np.full(n, k)
+
+        # no tie at the k-th distance: the k + 1 results minus the point itself
+        clean = (kdist > 0) & (distances[:, k + 1] > kdist * (1 + TIE_SLACK))
+        rows = np.flatnonzero(clean)
+        nearest = indicis[rows, : k + 1]
+        nearest = nearest[nearest != rows[:, None]].reshape(len(rows), k)
+        tof[rows] = self._compute_tof(nearest, rows[:, None])
+
+        # k or more exact twins: the neighbourhood is the whole twin group
+        twins = np.flatnonzero(kdist == 0)
+        if len(twins):
+            _, group = np.unique(X, axis=0, return_inverse=True)
+            group = group.ravel()
+            for g in np.unique(group[twins]):
+                members = np.flatnonzero(group == g)
+                tof[members] = self._twin_group_tof(members)
+                size[members] = len(members) - 1
+
+        # a tie at the k-th distance between distinct points: every point within that distance
+        boundary = np.flatnonzero(~clean & (kdist > 0))
+        for start in range(0, len(boundary), CHUNK):
+            part = boundary[start : start + CHUNK]
+            balls = tree.query_ball_point(X[part], kdist[part] * (1 + TIE_SLACK))
+            for i, ball in zip(part, balls):
+                neighbours = np.asarray(ball)
+                neighbours = neighbours[neighbours != i]
+                tof[i] = self._compute_tof(neighbours[None, :], np.array([[i]]))[0]
+                size[i] = len(neighbours)
+
+        self.neighbourhood_size_ = size
+        return tof
+
+    def _twin_group_tof(self, members):
+        """TOF of each member of an exact-twin group over the other members
+
+        :param numpy.ndarray of int members: indices of the group, ascending
+        :return: TOF score per member
+        """
+        m = len(members)
+        if self.q == 2 and self.centrality_func is np.mean and members[-1] < MAX_ROWS_EXACT:
+            # sum over j of (t_j - t_i)^2, exact in int64
+            t = members.astype(np.int64)
+            s1, s2 = t.sum(), (t * t).sum()
+            return np.sqrt((s2 - 2 * t * s1 + m * t * t) / (m - 1))
+        # any other q or centrality: every pair, in blocks; time grows with the group size squared
+        out = np.empty(m)
+        block = max(1, BLOCK_ELEMENTS // m)
+        for start in range(0, m, block):
+            rows = members[start : start + block]
+            others = np.broadcast_to(members, (len(rows), m))
+            others = others[others != rows[:, None]].reshape(len(rows), m - 1)
+            out[start : start + block] = self._compute_tof(others, rows[:, None])
+        return out
 
     def _compute_tof(self, nearest_indicis, indicis):
         """Computes TOF score from nearest neighbor indices and the indice list of the actual moment
