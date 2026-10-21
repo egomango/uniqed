@@ -2,17 +2,11 @@
 
 # uniqed — working rules for Claude Code
 
-## Current sprint: Sprint 1, story A-bug (a point never counts as its own neighbour), ships as 0.1.1
+## Current sprint: Sprint 1, story A2 (defaults for k, longest event, minimum visits, padding)
 
-A0 closed 2026-09-03 with 0.0.3; A1 closed 2026-09-06 with 0.1.0. See `docs/log.md`.
-The story is in `~/io/sci/uniqed-report/tracks/package/PLAN.md`, Epic A. A2 waits until after it.
-
-Rules for A-bug:
-- Test first. The test checks properties, not one tie order: no row lists itself, k distinct
-  neighbours per row, twins at distance 0.
-- Exclude the point from its own neighbours only when scoring the fitted data. `predict` on new data
-  keeps today's behaviour.
-- Scores on the paper datasets stay identical.
+A0 closed 2026-09-03 with 0.0.3; A1 closed 2026-09-06 with 0.1.0; A-bug (self-index) closed 2026-10-21
+with 0.1.1. See `docs/log.md`.
+The plan for A2 is in `~/io/sci/uniqed-report/tracks/package/PLAN.md`; write the story's rules here before starting it.
 
 ## Do
 
