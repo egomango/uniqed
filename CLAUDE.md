@@ -2,10 +2,17 @@
 
 # uniqed — working rules for Claude Code
 
-## Current sprint: Sprint 1, story A2 (defaults for k, longest event, minimum visits, padding)
+## Current sprint: Sprint 1, story A-bug (a point never counts as its own neighbour), ships as 0.1.1
 
 A0 closed 2026-09-03 with 0.0.3; A1 closed 2026-09-06 with 0.1.0. See `docs/log.md`.
-The plan for A2 is in `~/io/sci/uniqed-report/tracks/package/PLAN.md`; write the story's rules here before starting it.
+The story is in `~/io/sci/uniqed-report/tracks/package/PLAN.md`, Epic A. A2 waits until after it.
+
+Rules for A-bug:
+- Test first. The test checks properties, not one tie order: no row lists itself, k distinct
+  neighbours per row, twins at distance 0.
+- Exclude the point from its own neighbours only when scoring the fitted data. `predict` on new data
+  keeps today's behaviour.
+- Scores on the paper datasets stay identical.
 
 ## Do
 
@@ -15,9 +22,11 @@ The plan for A2 is in `~/io/sci/uniqed-report/tracks/package/PLAN.md`; write the
 
 ## Do not
 
-- Do not change the TOF score computation or the kNN search.
+- Do not change the TOF score formula or the kNN search. Exception (A-bug, 2026-10-21): which search
+  results are kept, so that a point is never its own neighbour.
 - Do not rename the package, modules, or public functions. Existing calls with explicit
-  `embedding_dimension` and `embedding_delay` must keep working and give the same output.
+  `embedding_dimension` and `embedding_delay` must keep working and give the same output on data
+  without exact twin embedded points. On data with twins, output changes from 0.1.1 (A-bug).
 - Do not delete or re-upload existing PyPI releases 0.0.0–0.1.0.
 - Do not add report, context-join, or hypothesis code to this repo. Epics E and F live in a separate private repo. See the plan there, "Three tracks".
 
