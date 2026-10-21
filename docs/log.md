@@ -68,4 +68,6 @@ neighbours, twins at distance 0) failed in 13 of 13 settings before the fix. On 
 published simulation files the scores at E=3, τ=1, k = 2 and 4 are identical to 0.1.0,
 since without twins the point is the only result at distance 0. What the fix does not
 do: which twins become neighbours still follows the search's tie order, so on data with
-many identical values the flags can depend on that order. Dithering removes the twins.
+many identical values the flags can depend on that order. Dithering removes the twins,
+but one noise seed only replaces the tie order with the noise's: score several seeds
+and report how often each flag appears (corrected 2026-10-21).

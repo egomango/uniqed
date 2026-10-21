@@ -8,6 +8,7 @@ A point never counts as its own neighbour (story A-bug). Changes output only on 
 - Applies when scoring the fitted data (`fit`, and `predict` on the same array). `predict` on other data keeps the old behaviour.
 - Output on data without exact twins is identical to 0.1.0: checked on all 400 published simulation files at E=3, τ=1, k = 2 and 4.
 - Which twins become neighbours still depends on the search's tie order. Data with many identical values should be dithered before scoring.
+  Correction (2026-10-21): one dither seed is not enough. It replaces the search's tie order with the noise's, and the flags move with the seed. Score several noise seeds and report how often each flag appears.
 
 ## 0.1.0 — 2026-09-06
 
