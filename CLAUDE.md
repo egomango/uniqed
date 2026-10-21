@@ -2,11 +2,10 @@
 
 # uniqed — working rules for Claude Code
 
-## Current story: A-ties (tie-inclusive neighbours, 0.1.2); next: Sprint 1, story A2 (defaults for k, longest event, minimum visits, padding)
+## Current sprint: Sprint 1, story A2 (defaults for k, longest event, minimum visits, padding)
 
 A0 closed 2026-09-03 with 0.0.3; A1 closed 2026-09-06 with 0.1.0; A-bug (self-index) closed 2026-10-21
-with 0.1.1. See `docs/log.md`. A-ties was allowed by the owner 2026-10-21 (plan:
-`~/io/sci/uniqed-report/tracks/package/plans/2026-10-21-a-ties-tie-inclusive.md`).
+with 0.1.1; A-ties (tie-inclusive neighbours) closed 2026-10-21 with 0.1.2. See `docs/log.md`.
 The plan for A2 is in `~/io/sci/uniqed-report/tracks/package/PLAN.md`; write the story's rules here before starting it.
 
 ## Do
